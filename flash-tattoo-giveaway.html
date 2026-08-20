@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Flash Draw — Sapphic Weekly ATX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#17100e;--ink-soft:#211815;--ink-line:rgba(251,241,236,.14);
+    --paper:#fbf1ec;--paper-dim:#d8c8c0;--rose:#e5486e;--coral:#f07a3c;--mute:#9a887f;
+    --sunset:linear-gradient(105deg,#f07a3c 0%,#e5486e 55%,#c43c7a 100%);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--ink);color:var(--paper);
+    font-family:"Space Grotesk",system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(120% 80% at 85% -10%, rgba(229,72,110,.16), transparent 60%),
+      radial-gradient(120% 90% at -10% 110%, rgba(240,122,60,.12), transparent 55%);
+    min-height:100vh;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 22px 64px}
+  .eyebrow{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--rose);display:flex;align-items:center;gap:10px}
+  .eyebrow::before{content:"";width:26px;height:2px;background:var(--sunset)}
+  h1{font-family:"Big Shoulders Display",sans-serif;font-weight:900;font-size:clamp(52px,11vw,120px);
+    line-height:.86;letter-spacing:-.01em;text-transform:uppercase;margin:14px 0 8px}
+  h1 .grad{background:var(--sunset);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:var(--mute);max-width:60ch;font-size:15px}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:22px;margin-top:36px}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--ink-soft);border:1px solid var(--ink-line);border-radius:16px;padding:22px}
+  .panel h2{font-family:"Space Mono",monospace;font-weight:700;font-size:12px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--paper-dim);margin:0 0 14px}
+  label.field{display:block;margin-bottom:16px}
+  .lab{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--mute);margin-bottom:6px;display:block}
+  .hint{font-size:11.5px;color:var(--mute);margin-top:5px;line-height:1.45}
+  textarea,input[type=text]{width:100%;background:#100b0a;color:var(--paper);border:1px solid var(--ink-line);
+    border-radius:10px;font-family:"Space Mono",monospace;font-size:12.5px;padding:11px 12px;resize:vertical}
+  textarea{min-height:150px;line-height:1.45}
+  textarea:focus,input[type=text]:focus{outline:2px solid var(--rose);outline-offset:1px;border-color:transparent}
+  .btn{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:14px;border:1px solid var(--ink-line);
+    background:#100b0a;color:var(--paper);border-radius:10px;padding:11px 16px;cursor:pointer;transition:.15s}
+  .btn:hover{border-color:var(--rose)}
+  .btn:focus-visible{outline:2px solid var(--rose);outline-offset:2px}
+  .counts{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .stat{font-family:"Space Mono",monospace;font-size:12px;background:#100b0a;border:1px solid var(--ink-line);
+    border-radius:8px;padding:8px 11px;color:var(--paper-dim)}
+  .stat b{color:var(--paper)}
+  .err{color:#ff9a6a;font-family:"Space Mono",monospace;font-size:12px;margin-top:8px;min-height:0;line-height:1.55}
+  .stage{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:420px}
+  .stage .idle{color:var(--mute);font-family:"Space Mono",monospace;font-size:13px;letter-spacing:.06em}
+  .flicker{font-family:"Big Shoulders Display",sans-serif;font-weight:800;font-size:clamp(28px,5.5vw,50px);
+    text-transform:lowercase;letter-spacing:-.01em;min-height:1.1em;word-break:break-all;max-width:100%}
+  .ticket{position:relative;background:var(--paper);color:var(--ink);border-radius:14px;padding:26px 26px 20px;
+    width:100%;max-width:360px;box-shadow:0 24px 60px -20px rgba(0,0,0,.7);transform:scale(.6) rotate(-4deg);opacity:0}
+  .ticket.show{animation:stamp .5s cubic-bezier(.2,1.3,.4,1) forwards}
+  @keyframes stamp{to{transform:scale(1) rotate(-2deg);opacity:1}}
+  .ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:22px;height:22px;background:var(--ink-soft);
+    border-radius:50%;transform:translateY(-50%)}
+  .ticket::before{left:-11px}.ticket::after{right:-11px}
+  .tk-banner{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#fff;
+    background:var(--sunset);display:inline-block;padding:5px 14px;border-radius:20px;font-weight:700}
+  .tk-ava{width:78px;height:78px;border-radius:50%;margin:18px auto 12px;background:var(--sunset);display:grid;
+    place-items:center;overflow:hidden;font-family:"Big Shoulders Display",sans-serif;font-weight:900;font-size:34px;
+    color:#fff;border:3px solid #fff;box-shadow:0 6px 16px -6px rgba(0,0,0,.5)}
+  .tk-ava img{width:100%;height:100%;object-fit:cover}
+  .tk-handle{font-family:"Big Shoulders Display",sans-serif;font-weight:900;font-size:clamp(24px,6vw,38px);
+    line-height:1;word-break:break-word}
+  .tk-quote{font-size:13.5px;color:#5c4a43;margin:12px auto 0;max-width:30ch;border-top:1px dashed #cbb8af;
+    padding-top:12px;font-style:italic}
+  .tk-foot{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:#a08d84;margin-top:14px;display:flex;justify-content:space-between;gap:8px}
+  .draw-btn{margin-top:26px;font-family:"Big Shoulders Display",sans-serif;font-weight:800;font-size:22px;
+    text-transform:uppercase;letter-spacing:.04em;background:var(--sunset);color:#fff;border:none;border-radius:12px;
+    padding:15px 40px;cursor:pointer;box-shadow:0 12px 30px -12px var(--rose);transition:transform .12s, filter .15s}
+  .draw-btn:hover{filter:brightness(1.06)}
+  .draw-btn:active{transform:translateY(2px)}
+  .draw-btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+  .draw-btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+  .redraw{margin-top:12px;background:none;border:none;color:var(--mute);font-family:"Space Mono",monospace;
+    font-size:12px;cursor:pointer;text-decoration:underline}
+  .pool{margin-top:26px}
+  .pool h2{font-family:"Space Mono",monospace;font-weight:700;font-size:12px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--paper-dim);margin:0 0 12px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-family:"Space Mono",monospace;font-size:12px;background:var(--ink-soft);border:1px solid var(--ink-line);
+    border-radius:20px;padding:6px 12px;color:var(--paper-dim)}
+  .chip b{color:var(--rose)}
+  .empty{color:var(--mute);font-family:"Space Mono",monospace;font-size:13px}
+  .foot-note{margin-top:40px;color:var(--mute);font-size:12px;font-family:"Space Mono",monospace;
+    border-top:1px solid var(--ink-line);padding-top:16px;letter-spacing:.02em;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Sapphic Weekly ATX · flash tattoo giveaway</div>
+  <h1>The <span class="grad">Flash</span> Draw</h1>
+  <p class="sub">A comment earns a ticket when it tags at least one friend the person hasn't tagged before. Re-tagging the same person, tagging only the org or studio, or tagging yourself earns nothing. Comments read oldest→newest so "new" means new. Verify the winner's like &amp; follows by hand after drawing.</p>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>Comments in</h2>
+      <label class="field">
+        <span class="lab">Apify comment JSON</span>
+        <textarea id="json" spellcheck="false"></textarea>
+      </label>
+      <button class="btn" id="load">Load comments</button>
+      <div id="status" class="hint" style="margin-top:10px;min-height:1.2em"></div>
+
+      <div style="height:22px"></div>
+      <h2>The rules</h2>
+      <label class="field" style="margin-bottom:0">
+        <span class="lab">Block these handles — as commenter and as tag</span>
+        <input type="text" id="exclude" value="sapphicweeklyatx, blackcrownstudios" spellcheck="false" placeholder="comma-separated">
+        <span class="hint">These can't win and can't be farmed as a tag. Add co-hosts or your artist here too.</span>
+      </label>
+
+      <div class="counts" id="counts" style="margin-top:16px"></div>
+      <div class="err" id="err"></div>
+    </section>
+
+    <section class="panel">
+      <h2>The draw</h2>
+      <div class="stage">
+        <div id="stageInner"><div class="idle" id="idle">Load comments, then pull a winner.</div></div>
+        <button class="draw-btn" id="draw" disabled>Draw winner</button>
+        <button class="redraw" id="redraw" style="display:none">Draw again</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="pool">
+    <h2 id="poolTitle">Eligible entrants</h2>
+    <div class="chips" id="chips"><span class="empty">No comments loaded yet.</span></div>
+  </div>
+
+  <p class="foot-note">Ticket = one qualifying comment. Someone with 3 tickets has 3× the odds. Winner's @handle links to their profile so you can check their like/follows and DM them. Instagram profile-pic URLs from Apify expire fast, so the ticket falls back to an initials monogram when the image is dead.</p>
+</div>
+
+<script>
+// Demo data in the real Apify export shape (postUrl, commentUrl, owner{}, likesCount, media...)
+const SAMPLE = [
+  {"postUrl":"https://instagram.com/p/DEMO/","commentUrl":"https://instagram.com/p/DEMO/c/1","id":"1","text":"@sappho.sarah we HAVE to","ownerUsername":"riverquimby","ownerProfilePicUrl":"","timestamp":"2026-08-09T19:12:00.000Z","likesCount":3,"owner":{"username":"riverquimby","is_verified":false}},
+  {"postUrl":"https://instagram.com/p/DEMO/","commentUrl":"https://instagram.com/p/DEMO/c/2","id":"2","text":"ok also @sappho.sarah @dani.boo get in here","ownerUsername":"riverquimby","ownerProfilePicUrl":"","timestamp":"2026-08-10T08:03:00.000Z","likesCount":1,"owner":{"username":"riverquimby","is_verified":false}},
+  {"postUrl":"https://instagram.com/p/DEMO/","commentUrl":"https://instagram.com/p/DEMO/c/3","id":"3","text":"@ari.reyes 🫶","ownerUsername":"petralux","ownerProfilePicUrl":"","timestamp":"2026-08-10T10:20:00.000Z","likesCount":0,"owner":{"username":"petralux","is_verified":false}},
+  {"postUrl":"https://instagram.com/p/DEMO/","commentUrl":"https://instagram.com/p/DEMO/c/4","id":"4","text":"@ari.reyes AGAIN pick us","ownerUsername":"petralux","ownerProfilePicUrl":"","timestamp":"2026-08-11T09:00:00.000Z","likesCount":0,"owner":{"username":"petralux","is_verified":false}},
+  {"postUrl":"https://instagram.com/p/DEMO/","commentUrl":"https://instagram.com/p/DEMO/c/5","id":"5","text":"@kbyrd @tori.lane 🔥","ownerUsername":"kbyrd","ownerProfilePicUrl":"","timestamp":"2026-08-11T14:30:00.000Z","likesCount":0,"owner":{"username":"kbyrd","is_verified":false}},
+  {"postUrl":"https://instagram.com/p/DEMO/","commentUrl":"https://instagram.com/p/DEMO/c/6","id":"6","text":"love this @sapphicweeklyatx @blackcrownstudios","ownerUsername":"moonyjune","ownerProfilePicUrl":"","timestamp":"2026-08-12T11:00:00.000Z","likesCount":0,"owner":{"username":"moonyjune","is_verified":false}},
+  {"postUrl":"https://instagram.com/p/DEMO/","commentUrl":"https://instagram.com/p/DEMO/c/7","id":"7","text":"💯🔥🐸 gorgeous work","ownerUsername":"ayala.mariadejesus","ownerProfilePicUrl":"","timestamp":"2026-08-12T13:00:00.000Z","likesCount":0,"owner":{"username":"ayala.mariadejesus","is_verified":false}}
+];
+
+const $ = id => document.getElementById(id);
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let rawComments = [];
+let entries = [];
+
+$('json').value = JSON.stringify(SAMPLE, null, 2);
+
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function initials(u){return u.replace(/[^a-z0-9]/gi,'').slice(0,2).toUpperCase()||'@';}
+function normHandle(h){return h.toLowerCase().replace(/^@+/,'').replace(/^\.+/,'').replace(/\.+$/,'');}
+
+function extractTags(text){
+  const out=[]; const re=/@([a-zA-Z0-9._]+)/g; let m;
+  while((m=re.exec(text))!==null){ const h=normHandle(m[1]); if(h) out.push(h); }
+  return [...new Set(out)];
+}
+
+// pull username / pic out of a comment object, tolerating the real export shape
+function fieldUser(c){ return ((c.ownerUsername || (c.owner && c.owner.username) || '')+'').trim(); }
+function fieldPic(c){ return ((c.ownerProfilePicUrl || (c.owner && c.owner.profile_pic_url) || '')+''); }
+
+function parseJSON(){
+  const raw=$('json').value.trim();
+  if(!raw) throw new Error('Paste your Apify JSON first.');
+  let data;
+  try{ data=JSON.parse(raw); }
+  catch(e){ throw new Error('That JSON did not parse. Check for a missing bracket or a stray comma.'); }
+  if(!Array.isArray(data)) throw new Error('Expected a list of comments (an array).');
+  const out=data.filter(c => c && fieldUser(c));
+  if(out.length===0) throw new Error('No usable comments found — every item needs an ownerUsername (or owner.username).');
+  return out;
+}
+
+function randInt(n){
+  const max=Math.floor(0xFFFFFFFF/n)*n; const buf=new Uint32Array(1); let x;
+  do{ crypto.getRandomValues(buf); x=buf[0]; } while(x>=max);
+  return x%n;
+}
+
+function buildEntries(){
+  $('err').textContent='';
+  const blocked=new Set($('exclude').value.split(',').map(s=>normHandle(s.trim())).filter(Boolean));
+
+  const list=rawComments.map(c=>{
+    const username=fieldUser(c);
+    return { username, uname:username.toLowerCase(), text:(c.text||'')+'', pic:fieldPic(c), ts:c.timestamp||'' };
+  });
+
+  const byUser=new Map();
+  for(const c of list){
+    if(blocked.has(c.uname)) continue;
+    if(!byUser.has(c.uname)) byUser.set(c.uname,[]);
+    byUser.get(c.uname).push(c);
+  }
+
+  const tickets=[]; const perUser=[];
+  for(const [uname,arr] of byUser){
+    arr.sort((a,b)=> new Date(a.ts)-new Date(b.ts)); // oldest -> newest
+    const seen=new Set(); let cnt=0;
+    for(const c of arr){
+      const tags=extractTags(c.text).filter(h=> h!==uname && !blocked.has(h));
+      const fresh=tags.filter(h=> !seen.has(h));
+      if(fresh.length){ tickets.push({username:c.username,text:c.text,ts:c.ts,pic:c.pic,fresh}); cnt++; }
+      tags.forEach(h=>seen.add(h));
+    }
+    if(cnt>0) perUser.push({username:arr[0].username,count:cnt});
+  }
+
+  entries=tickets;
+  perUser.sort((a,b)=> b.count-a.count || a.username.localeCompare(b.username));
+
+  $('counts').innerHTML=[
+    `<span class="stat"><b>${rawComments.length}</b> comments</span>`,
+    `<span class="stat"><b>${perUser.length}</b> eligible</span>`,
+    `<span class="stat"><b>${entries.length}</b> tickets in the hat</span>`
+  ].join('');
+
+  if(perUser.length===0){
+    $('poolTitle').textContent='Eligible entrants';
+    $('chips').innerHTML='<span class="empty">No one qualifies with the current rules.</span>';
+    $('status').innerHTML=`Loaded <b>${rawComments.length}</b> comments · <b>0 eligible</b> — no comment tagged a new friend.`;
+  }else{
+    $('poolTitle').textContent=`Eligible entrants (${entries.length} tickets)`;
+    $('chips').innerHTML=perUser.map(p=>`<span class="chip">@${escapeHtml(p.username)} <b>×${p.count}</b></span>`).join('');
+    $('status').innerHTML=`Loaded <b>${rawComments.length}</b> comments · <b>${perUser.length} eligible</b> · <b>${entries.length} tickets</b>. Ready to draw.`;
+  }
+  $('draw').disabled = entries.length===0;
+}
+
+function draw(){
+  if(entries.length===0) return;
+  const winner=entries[randInt(entries.length)];
+  $('draw').disabled=true; $('redraw').style.display='none';
+  const inner=$('stageInner');
+  if(reduce){ reveal(winner); return; }
+  inner.innerHTML='<div class="flicker" id="fl">&nbsp;</div>';
+  const fl=$('fl'); let delay=55,elapsed=0,cap=1700;
+  const tick=()=>{ fl.textContent='@'+entries[randInt(entries.length)].username; elapsed+=delay;
+    if(elapsed>=cap){ reveal(winner); return; } delay*=1.09; setTimeout(tick,delay); };
+  tick();
+}
+
+function reveal(w){
+  const dt=w.ts?new Date(w.ts):null;
+  const dstr=dt?dt.toLocaleDateString(undefined,{month:'short',day:'numeric'}):'—';
+  const tnum=String(randInt(9000)+1000);
+  const ava=w.pic
+    ? `<img src="${escapeHtml(w.pic)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${initials(w.username)}'}))">`
+    : initials(w.username);
+  const wonOn=w.fresh&&w.fresh.length?`tagged @${escapeHtml(w.fresh[0])}`:`commented ${dstr}`;
+  $('stageInner').innerHTML=`
+    <div class="ticket show">
+      <div class="tk-banner">Winner drawn</div>
+      <div class="tk-ava">${ava}</div>
+      <a class="tk-handle" href="https://instagram.com/${encodeURIComponent(w.username)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">@${escapeHtml(w.username)}</a>
+      ${w.text?`<div class="tk-quote">“${escapeHtml(w.text)}”</div>`:''}
+      <div class="tk-foot"><span>Ticket #${tnum}</span><span>${wonOn}</span></div>
+    </div>`;
+  $('stageInner').setAttribute('aria-live','polite');
+  $('redraw').style.display='block';
+  $('draw').disabled=false;
+}
+
+$('load').addEventListener('click',()=>{
+  $('err').textContent='';
+  try{
+    rawComments=parseJSON();
+    buildEntries();
+    if(entries.length && !document.querySelector('.ticket'))
+      $('stageInner').innerHTML='<div class="idle">Ready. Pull a winner.</div>';
+  }catch(e){
+    $('err').textContent=e.message;
+    $('status').textContent='Load failed — see note below.';
+    rawComments=[]; entries=[];
+    $('draw').disabled=true;
+    $('chips').innerHTML='<span class="empty">No comments loaded.</span>';
+    $('counts').innerHTML='';
+  }
+});
+$('exclude').addEventListener('input',()=> rawComments.length && buildEntries());
+$('draw').addEventListener('click',draw);
+$('redraw').addEventListener('click',draw);
+
+$('load').click();
+</script>
+</body>
+</html>
